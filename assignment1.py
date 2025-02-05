@@ -20,3 +20,32 @@ plt.ylabel('Temperature (°C)')
 plt.xticks(rotation=45)
 
 plt.show()
+
+# change data from long to wide format for *Boston, MA*, *Anchorage, AK*, and *Dallas-Fort Worth, TX* by temp and precipitation
+
+df_aktxma = df[df['Station.Location'].isin(['Anchorage, AK', 'Boston, MA', 'Dallas-Fort Worth, TX'])]
+
+df_aktxma_temperature = df_aktxma.pivot(index='Date.Full', columns='Station.Location', values='Average Temperature Celsius')
+df_aktxma_temperature.index = pd.to_datetime(df_aktxma_temperature.index)
+df_aktxma_temperature.columns = df_aktxma_temperature.columns.get_level_values(0)
+
+
+df_aktxma_precipitation = df_aktxma.pivot(index='Date.Full', columns='Station.Location', values='Precipitation mm')
+df_aktxma_precipitation.index = pd.to_datetime(df_aktxma_precipitation.index)
+df_aktxma_precipitation.columns = df_aktxma_precipitation.columns.get_level_values(0)
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(df_aktxma_temperature.index, df_aktxma_temperature['Anchorage, AK'], label='Anchorage, AK')
+plt.plot(df_aktxma_temperature.index, df_aktxma_temperature['Boston, MA'], label='Boston, MA')
+plt.plot(df_aktxma_temperature.index, df_aktxma_temperature['Dallas-Fort Worth, TX'], label='Dallas-Fort Worth, TX')
+
+plt.xlabel('Date')
+plt.ylabel('Temperature (°C)')
+plt.title('Daily Average Temperature - Anchorage, Boston, and Dallas-Fort Worth')
+plt.legend()
+plt.grid(True)
+
+plt.xticks(rotation=45)
+
+plt.show()
