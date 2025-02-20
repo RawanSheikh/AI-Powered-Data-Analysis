@@ -1,5 +1,8 @@
+import math
 from pathlib import Path
 import zipfile
+from matplotlib import pyplot as plt
+import numpy as np
 import pandas as pd
 import re
 from bs4 import BeautifulSoup
@@ -147,3 +150,21 @@ def five_point_summary(s):
         'max': s.max()
     })
 price_2023_gothenburg_fps = five_point_summary(df_2023_gothenburg['price'])
+
+
+if not df_2023_gothenburg.empty and "price" in df_2023_gothenburg.columns:
+    SEK_prices = df_2023_gothenburg["price"]
+
+    fig, ax = plt.subplots(figsize=(12, 9))
+    nr_bins = int(round(math.log2(len(SEK_prices)) + 1))
+    counts, bins, _ = ax.hist(SEK_prices, bins=nr_bins, edgecolor="brown")
+    if len(bins) != len(counts) + 1:
+        raise ValueError(f"Required {len(counts) + 1} bins, but obtained {len(bins)}.")
+
+    tick_SEK = np.arange(0, 2.05e7 + 1, 2.5e6)
+    ax.set_xticks(tick_SEK)
+    ax.set_xticklabels([f"{t / 1e6:.1f}" for t in tick_SEK], fontsize=7)
+    ax.set_title("Apartment Prices in GBG in the year 2023", fontsize=14)
+    ax.set_xlabel("Price (MSEK)", fontsize=7)
+    ax.set_ylabel("Frequency", fontsize=7)
+    plt.show()
