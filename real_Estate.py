@@ -134,3 +134,16 @@ if not df_2023.empty:
     df_2023_gothenburg = df_2023[df_2023["municipality"] == "Göteborg"].copy()
 else:
     df_2023_gothenburg = df_2023.copy()
+
+
+def five_point_summary(s):
+    s = pd.to_numeric(s, errors="coerce").dropna()
+
+    return pd.Series({
+        'min': s.min(),
+        'Q1': s.quantile(0.25),
+        'median': s.median(),
+        'Q3': s.quantile(0.75),
+        'max': s.max()
+    })
+price_2023_gothenburg_fps = five_point_summary(df_2023_gothenburg['price'])
