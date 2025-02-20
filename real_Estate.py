@@ -113,3 +113,24 @@ def extract_announcements(page): #parse html real estate property data
         })
 
     return pd.DataFrame(apartment)
+
+
+yr2023_data = extract_files("gothenburg_sold_apartments.zip").get(2023, "")
+
+if yr2023_data:
+    df_2023 = extract_announcements(yr2023_data)
+else:
+    df_2023 = pd.DataFrame(columns=["address", "date", "district", "municipality", "price", "area", "rooms", "floor"])
+
+if not df_2023.empty:
+    df_2023["municipality"] = df_2023["municipality"].astype(str).str.strip()
+
+    for col in ["area", "rooms", "floor"]:
+        df_2023[col] = pd.to_numeric(df_2023[col], errors="coerce")
+    df_2023.loc[df_2023["floor"] > 100, "floor"] = pd.NA
+    df_2023.loc[df_2023["floor"] < -5, "floor"] = pd.NA
+    df_2023.loc[df_2023["floor"].isna(), "floor"] = None
+
+    df_2023_gothenburg = df_2023[df_2023["municipality"] == "Göteborg"].copy()
+else:
+    df_2023_gothenburg = df_2023.copy()
