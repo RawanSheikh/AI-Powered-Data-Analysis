@@ -168,3 +168,37 @@ if not df_2023_gothenburg.empty and "price" in df_2023_gothenburg.columns:
     ax.set_xlabel("Price (MSEK)", fontsize=7)
     ax.set_ylabel("Frequency", fontsize=7)
     plt.show()
+
+
+if df_2023_gothenburg.empty or not all(col in df_2023_gothenburg.columns for col in ["area", "price", "rooms"]):
+    raise ValueError("DataFrame is empty or missing required columns.")
+
+df_2023_gothenburg = df_2023_gothenburg.dropna(subset=["area", "price", "rooms"])
+area = df_2023_gothenburg["area"]
+price = df_2023_gothenburg["price"]
+rooms = df_2023_gothenburg["rooms"]
+room_colors = rooms.apply(lambda x: int(x * 2))
+
+fig, ax = plt.subplots(figsize=(12, 9))
+scatter = ax.scatter(area, price, c=room_colors, cmap="viridis", alpha=0.6)
+ax.set_xlabel("Area (m²)", fontsize=12)
+ax.set_ylabel("Price (SEK)", fontsize=12)
+ax.set_title("Apartment Price vs Area in Gothenburg (2023)", fontsize=14)
+
+cbar = plt.colorbar(scatter, ax=ax)
+cbar.set_label("Number of Rooms", fontsize=12)
+tick_values = np.arange(0, rooms.max() * 2 + 1, 2)
+room_ticks = np.arange(1.0, rooms.max() + 0.5, 0.5)
+cbar.set_ticks(tick_values)
+cbar.set_ticklabels([f"{tick / 2:.1f}" for tick in tick_values])
+
+handles, labels = scatter.legend_elements()
+labels = [label.replace(r"$\mathdefault{", "").replace(r"}$", "") for label in labels]
+labels = [f"{float(label):.1f}" for label in labels]
+custom_labels = [f"{x:.1f}" for x in room_ticks]
+ax.legend(handles, custom_labels, title="Number of Rooms")
+plt.show()
+
+df_2023_gothenburg_w_psqm = df_2023_gothenburg.copy()
+df_2023_gothenburg_w_psqm['price per sqm'] = df_2023_gothenburg_w_psqm['price'] / df_2023_gothenburg_w_psqm['area']
+df_2023_gothenburg_w_psqm.head()
