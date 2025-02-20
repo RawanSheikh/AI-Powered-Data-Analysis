@@ -202,3 +202,26 @@ plt.show()
 df_2023_gothenburg_w_psqm = df_2023_gothenburg.copy()
 df_2023_gothenburg_w_psqm['price per sqm'] = df_2023_gothenburg_w_psqm['price'] / df_2023_gothenburg_w_psqm['area']
 df_2023_gothenburg_w_psqm.head()
+
+
+if df_2023_gothenburg_w_psqm.empty or not all(col in df_2023_gothenburg_w_psqm.columns for col in ["district", "price per sqm"]):
+    raise ValueError("DataFrame is empty or missing required columns.")
+
+exclude_districts = ["Backadalen", "Lundbypark", "Sannegården", "Lindholmen"]
+avg_price_per_sqm_by_district = df_2023_gothenburg_w_psqm.groupby('district')['price per sqm'].mean()
+filtered_avg_price = avg_price_per_sqm_by_district.drop(exclude_districts, errors='ignore')
+
+cheapest = filtered_avg_price.nsmallest(5)
+most_expensive = filtered_avg_price.nlargest(5)
+combined = pd.concat([cheapest, most_expensive]).sort_values()
+
+fig, ax = plt.subplots(figsize=(12, 8))
+combined.plot(kind='bar', ax=ax, color=['blue' if x in cheapest.index else 'red' for x in combined.index])
+
+ax.set_title("Price per Square Meter in the Five Cheapest and Most Expensive Districts (2023)")
+ax.set_xlabel("District")
+ax.set_ylabel("Price per Square Meter (SEK)")
+
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.show()
